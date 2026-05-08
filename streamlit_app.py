@@ -546,6 +546,23 @@ def _pick_freshman_stats_row(pair: pd.DataFrame) -> pd.DataFrame:
     return proj_row if not proj_row.empty else comp_row
 
 
+def _pick_recruit_profile_row(pair: pd.DataFrame) -> pd.DataFrame:
+    """Pick row with the best available recruit metadata for profile table."""
+    comp_row = pair.loc[pair["Type"].eq("Actual Comp")].head(1)
+    proj_row = pair.loc[pair["Type"].eq("Actual Proj")].head(1)
+    for candidate in (comp_row, proj_row):
+        if candidate.empty:
+            continue
+        has_any = False
+        for col in ("recruit_ranking", "recruit_stars", "recruit_rating", "position"):
+            if col in candidate.columns and candidate[col].notna().any():
+                has_any = True
+                break
+        if has_any:
+            return candidate
+    return comp_row if not comp_row.empty else proj_row
+
+
 def _render_frosh(player: str, projection_df: pd.DataFrame, similarity_df: pd.DataFrame) -> None:
     rows = projection_df.loc[
         projection_df["name"].eq(player) & projection_df["season_type"].eq("projected")
@@ -644,7 +661,7 @@ def _render_comp_pool(tab: st.delta_generator.DeltaGenerator, player: str, simil
                 render_bbref(draw, projected_rows=pair["Type"].astype(str).str.contains("Proj", na=False))
                 continue
 
-            comp_row = pair.loc[pair["Type"].eq("Actual Comp")].head(1)
+            comp_row = _pick_recruit_profile_row(pair)
             freshman_actual_row = _pick_freshman_stats_row(pair)
 
             st.markdown("**Recruit profile**")
