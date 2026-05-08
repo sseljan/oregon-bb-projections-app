@@ -1,0 +1,111 @@
+assumption_type,name,assumption,value
+global,,projected_team_games,38
+global,,projected_team_season_minutes,38*200 + 20*5 = 7700
+global,,team_possessions_per_game,69
+global,,minute_distribution,rank-based Oregon rotation slots blended with player rotation score
+global,,usage_distribution,Oregon historical role usage rates blended with player scoring/assist profile
+global,,prior_usage_share,prior usage share uses player usage multiplied by minutes divided by team total for prior team-season
+global,,rebound_distribution,Oregon historical rank rebound shares blended with player prior rebound rate
+global,,freshman_priors,HS priors use Oregon historical freshman outcomes by recruiting rank bin
+global,,freshman_penalty_factor,0.55
+global,,advanced_stats_priority,sports reference then simplified bpm model
+player,Sean Stewart,assumed_prev_mpg,23.0
+player,Pharoah Compton,assumed_prev_mpg,21.5
+player,Dwayne Aristode,assumed_prev_mpg,13.3
+player,Taylor Bol Bowen,assumed_prev_mpg,16.0
+player,Andrew Meadow,assumed_prev_mpg,19.0
+player,Jasper Johnson,assumed_prev_mpg,12.0
+player,Jerry Easter II,assumed_prev_mpg,14.0
+player,Kendre Harrison,assumed_prev_mpg,7.0
+player,Seven Spurlock,assumed_prev_mpg,8.0
+player,Tahj Ariza,assumed_prev_mpg,10.0
+player,Tyrone Riley IV,assumed_prev_mpg,20.0
+player,Fred Payne,assumed_prev_mpg,18.0
+player,Sean Stewart,assumed_prev_usage,16.5
+player,Pharoah Compton,assumed_prev_usage,19.0
+player,Dwayne Aristode,assumed_prev_usage,16.5
+player,Taylor Bol Bowen,assumed_prev_usage,17.0
+player,Andrew Meadow,assumed_prev_usage,20.0
+player,Jasper Johnson,assumed_prev_usage,18.5
+player,Jerry Easter II,assumed_prev_usage,18.0
+player,Kendre Harrison,assumed_prev_usage,15.5
+player,Seven Spurlock,assumed_prev_usage,16.0
+player,Tahj Ariza,assumed_prev_usage,17.0
+player,Tyrone Riley IV,assumed_prev_usage,21.0
+player,Fred Payne,assumed_prev_usage,19.5
+player,Sean Stewart,assumed_prev_ws,1.4
+player,Pharoah Compton,assumed_prev_ws,1.2
+player,Dwayne Aristode,assumed_prev_ws,1.8
+player,Taylor Bol Bowen,assumed_prev_ws,1.0
+player,Andrew Meadow,assumed_prev_ws,1.4
+player,Jasper Johnson,assumed_prev_ws,0.8
+player,Jerry Easter II,assumed_prev_ws,0.9
+player,Kendre Harrison,assumed_prev_ws,0.3
+player,Seven Spurlock,assumed_prev_ws,0.35
+player,Tahj Ariza,assumed_prev_ws,0.45
+player,Tyrone Riley IV,assumed_prev_ws,1.6
+player,Fred Payne,assumed_prev_ws,1.1
+player,Sean Stewart,assumed_prev_bpm,-0.8
+player,Pharoah Compton,assumed_prev_bpm,1.5
+player,Dwayne Aristode,assumed_prev_bpm,1.2
+player,Taylor Bol Bowen,assumed_prev_bpm,0.8
+player,Andrew Meadow,assumed_prev_bpm,1.6
+player,Jasper Johnson,assumed_prev_bpm,0.3
+player,Jerry Easter II,assumed_prev_bpm,0.4
+player,Kendre Harrison,assumed_prev_bpm,-1.5
+player,Seven Spurlock,assumed_prev_bpm,-1.0
+player,Tahj Ariza,assumed_prev_bpm,-0.6
+player,Tyrone Riley IV,assumed_prev_bpm,2.1
+player,Fred Payne,assumed_prev_bpm,1.0
+player,Sean Stewart,assumed_role_weight,1.0
+player,Pharoah Compton,assumed_role_weight,1.25
+player,Dwayne Aristode,assumed_role_weight,1.15
+player,Taylor Bol Bowen,assumed_role_weight,1.1
+player,Andrew Meadow,assumed_role_weight,1.2
+player,Jasper Johnson,assumed_role_weight,1.08
+player,Jerry Easter II,assumed_role_weight,1.07
+player,Kendre Harrison,assumed_role_weight,0.8
+player,Seven Spurlock,assumed_role_weight,0.85
+player,Tahj Ariza,assumed_role_weight,0.92
+player,Tyrone Riley IV,assumed_role_weight,1.3
+player,Fred Payne,assumed_role_weight,1.12
+freshman_recruit,Kendre Harrison,ranking,142.0
+freshman_recruit,Seven Spurlock,ranking,202.0
+freshman_recruit,Tahj Ariza,ranking,14.0
+freshman_recruit,Kendre Harrison,stars,3.0
+freshman_recruit,Seven Spurlock,stars,3.0
+freshman_recruit,Tahj Ariza,stars,5.0
+freshman_recruit,Kendre Harrison,rating,0.9318
+freshman_recruit,Seven Spurlock,rating,0.9045
+freshman_recruit,Tahj Ariza,rating,0.9889
+freshman_recruit,Kendre Harrison,recruit_rank_bin,top_150
+freshman_recruit,Seven Spurlock,recruit_rank_bin,top_250
+freshman_recruit,Tahj Ariza,recruit_rank_bin,top_25
+freshman_recruit,Kendre Harrison,freshman_comp_count,3.0
+freshman_recruit,Seven Spurlock,freshman_comp_count,1.0
+freshman_recruit,Tahj Ariza,freshman_comp_count,3.0
+freshman_recruit,Kendre Harrison,freshman_pts_pg_prior,1.1763618190904548
+freshman_recruit,Seven Spurlock,freshman_pts_pg_prior,0.0
+freshman_recruit,Tahj Ariza,freshman_pts_pg_prior,13.695760466348702
+freshman_recruit,Kendre Harrison,freshman_ast_pg_prior,0.067816091954023
+freshman_recruit,Seven Spurlock,freshman_ast_pg_prior,0.0
+freshman_recruit,Tahj Ariza,freshman_ast_pg_prior,2.0541978953743656
+freshman_recruit,Kendre Harrison,freshman_fg_pct_prior,0.3713333333333333
+freshman_recruit,Seven Spurlock,freshman_fg_pct_prior,0.0
+freshman_recruit,Tahj Ariza,freshman_fg_pct_prior,0.482
+freshman_recruit,Kendre Harrison,freshman_3p_pct_prior,0.0
+freshman_recruit,Seven Spurlock,freshman_3p_pct_prior,0.0
+freshman_recruit,Tahj Ariza,freshman_3p_pct_prior,0.3503333333333334
+freshman_recruit,Kendre Harrison,freshman_ft_pct_prior,0.68
+freshman_recruit,Seven Spurlock,freshman_ft_pct_prior,0.0
+freshman_recruit,Tahj Ariza,freshman_ft_pct_prior,0.7573333333333334
+manual_projection_override,Pharoah Compton,projected_mpg,24.5
+manual_projection_override,Fred Payne,projected_mpg,31.0
+manual_projection_override,Taylor Bol Bowen,projected_mpg,22.1
+manual_projection_override,Tahj Ariza,projected_mpg,14.2
+manual_projection_override,Tahj Ariza,projected_usage_rate,17.4
+manual_projection_override,Seven Spurlock,projected_mpg,4.9
+manual_projection_override,Seven Spurlock,projected_usage_rate,12.6
+manual_projection_override,Kendre Harrison,projected_mpg,3.2
+manual_projection_override,Kendre Harrison,projected_games,15.0
+manual_projection_override,Kendre Harrison,projected_usage_rate,13.7
