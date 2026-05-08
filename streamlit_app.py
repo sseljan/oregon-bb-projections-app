@@ -179,9 +179,19 @@ body, .stApp {
     font-size: 16px;
 }
 h1, h2, h3 {
+    border-left: 0;
+    padding-left: 0;
+    margin-left: 0;
+}
+div[data-testid="stHeadingWithActionElements"] {
     border-left: 4px solid #154733;
     padding-left: 22px;
-    margin-left: 8px;
+    margin-left: 10px;
+}
+div[data-testid="stHeadingWithActionElements"] h1,
+div[data-testid="stHeadingWithActionElements"] h2,
+div[data-testid="stHeadingWithActionElements"] h3 {
+    margin: 0;
 }
 .kpi-card {
     border: 1px solid #154733;
@@ -283,6 +293,8 @@ table.bbref tbody td.projected-row:first-child {
 
 def _fmt_cell(column: str, value: object) -> str:
     if pd.isna(value):
+        if column in {"recruit_ranking", "recruit_stars", "recruit_rating"}:
+            return "--"
         return ""
     if column in PERCENT_COLS:
         val = float(value)
@@ -522,6 +534,18 @@ def _freshman_actuals_empty(df: pd.DataFrame) -> bool:
     return subset.isna().all(axis=None)
 
 
+def _pick_freshman_stats_row(pair: pd.DataFrame) -> pd.DataFrame:
+    """Return the row that best represents freshman-season actuals for recruit comps."""
+    comp_row = pair.loc[pair["Type"].eq("Actual Comp")].head(1)
+    proj_row = pair.loc[pair["Type"].eq("Actual Proj")].head(1)
+
+    if not _freshman_actuals_empty(comp_row):
+        return comp_row
+    if not _freshman_actuals_empty(proj_row):
+        return proj_row
+    return proj_row if not proj_row.empty else comp_row
+
+
 def _render_frosh(player: str, projection_df: pd.DataFrame, similarity_df: pd.DataFrame) -> None:
     rows = projection_df.loc[
         projection_df["name"].eq(player) & projection_df["season_type"].eq("projected")
@@ -621,7 +645,7 @@ def _render_comp_pool(tab: st.delta_generator.DeltaGenerator, player: str, simil
                 continue
 
             comp_row = pair.loc[pair["Type"].eq("Actual Comp")].head(1)
-            proj_row = pair.loc[pair["Type"].eq("Actual Proj")].head(1)
+            freshman_actual_row = _pick_freshman_stats_row(pair)
 
             st.markdown("**Recruit profile**")
             recruit_cols = ["name", "position", "recruit_ranking", "recruit_stars", "recruit_rating", "comp_distance"]
@@ -629,7 +653,7 @@ def _render_comp_pool(tab: st.delta_generator.DeltaGenerator, player: str, simil
             render_bbref(recruit_df)
 
             st.markdown("**Freshman season actuals**")
-            if _freshman_actuals_empty(proj_row):
+            if _freshman_actuals_empty(freshman_actual_row):
                 render_bbref(pd.DataFrame([{"season_label": "No recorded freshman season"}]))
             else:
                 season_cols = [
@@ -647,7 +671,7 @@ def _render_comp_pool(tab: st.delta_generator.DeltaGenerator, player: str, simil
                     "3pa_pg",
                     "ws",
                 ]
-                draw = proj_row[[c for c in season_cols if c in proj_row.columns]].copy()
+                draw = freshman_actual_row[[c for c in season_cols if c in freshman_actual_row.columns]].copy()
                 render_bbref(draw, projected_rows=pd.Series([False], index=draw.index))
 
 
