@@ -113,12 +113,12 @@ def _project_paths_exist() -> tuple[bool, list[str]]:
 
 
 @st.cache_data(show_spinner=False)
-def load_projection() -> pd.DataFrame:
+def load_projection(_csv_mtime_ns: int) -> pd.DataFrame:
     return pd.read_csv(PROJECTION_CSV)
 
 
 @st.cache_data(show_spinner=False)
-def load_similarity_comps() -> pd.DataFrame:
+def load_similarity_comps(_csv_mtime_ns: int) -> pd.DataFrame:
     df = pd.read_csv(SIMILARITY_COMPS_CSV)
     per_min_to_per36 = {
         "ws_per_min": "ws_per36",
@@ -705,8 +705,8 @@ def main() -> None:
         pass
 
     try:
-        projection = load_projection()
-        similarity = load_similarity_comps()
+        projection = load_projection(PROJECTION_CSV.stat().st_mtime_ns)
+        similarity = load_similarity_comps(SIMILARITY_COMPS_CSV.stat().st_mtime_ns)
     except Exception as exc:
         st.exception(exc)
         return
