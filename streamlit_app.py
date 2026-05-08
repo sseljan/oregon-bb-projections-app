@@ -69,6 +69,8 @@ DISPLAY_LABELS = {
     "blk_per36": "BLK/36",
     "3pa_per36": "3PA/36",
     "comp_distance": "Dist",
+    "similarity_percentile": "Similarity",
+    "similarity_bucket": "Bucket",
     "recruit_ranking": "247 Rk",
     "recruit_stars": "Stars",
     "recruit_rating": "Rating",
@@ -76,6 +78,7 @@ DISPLAY_LABELS = {
 
 NUMERIC_COL_ORDER = [
     "comp_distance",
+    "similarity_percentile",
     "mpg",
     "total_minutes",
     "usage_pct",
@@ -304,6 +307,8 @@ def _fmt_cell(column: str, value: object) -> str:
         return f"{val:.1f}"
     if column in INT_COLS:
         return f"{int(round(float(value)))}"
+    if column == "similarity_percentile":
+        return f"{float(value):.0f}%"
     if column in {"comp_distance", "recruit_rating"}:
         return f"{float(value):.3f}"
     if pd.api.types.is_number(value):
@@ -408,6 +413,24 @@ def _render_kpi_cards(metrics: list[tuple[str, str]]) -> None:
 """,
             unsafe_allow_html=True,
         )
+
+
+def _has_strong_oregon_comp(similarity_df: pd.DataFrame, player: str) -> bool:
+    sub = similarity_df.loc[
+        similarity_df["current_player"].eq(player)
+        & similarity_df["comparison_pool"].eq("oregon_comp")
+        & pd.to_numeric(similarity_df.get("similarity_percentile"), errors="coerce").ge(70)
+    ]
+    return not sub.empty
+
+
+def _similarity_headline(pair: pd.DataFrame) -> str:
+    bucket = pair["similarity_bucket"].dropna().iloc[0] if "similarity_bucket" in pair.columns and not pair["similarity_bucket"].dropna().empty else ""
+    pct = pair["similarity_percentile"].dropna().iloc[0] if "similarity_percentile" in pair.columns and not pair["similarity_percentile"].dropna().empty else None
+    if pd.notna(pd.to_numeric(pct, errors="coerce")):
+        pct_label = _fmt_cell("similarity_percentile", pct)
+        return f"{bucket} ({pct_label})" if bucket else pct_label
+    return bucket or "-"
 
 
 def _format_player_rows(projection_df: pd.DataFrame, player: str) -> pd.DataFrame:
@@ -520,9 +543,14 @@ def _render_returning(player: str, projection_df: pd.DataFrame, similarity_df: p
     render_bbref(per36, projected_rows=rows["season_type"].eq("projected"))
 
     st.subheader("Player Comparisons")
-    tab_oregon, tab_all = st.tabs([POOL_LABELS["oregon_comp"], POOL_LABELS["all_college_comp"]])
-    _render_comp_pool(tab_oregon, player, similarity_df, "oregon_comp", recruit_mode=False)
-    _render_comp_pool(tab_all, player, similarity_df, "all_college_comp", recruit_mode=False)
+    if _has_strong_oregon_comp(similarity_df, player):
+        tab_oregon, tab_all = st.tabs([POOL_LABELS["oregon_comp"], POOL_LABELS["all_college_comp"]])
+        _render_comp_pool(tab_oregon, player, similarity_df, "oregon_comp", recruit_mode=False)
+        _render_comp_pool(tab_all, player, similarity_df, "all_college_comp", recruit_mode=False)
+    else:
+        tab_all, tab_oregon = st.tabs([POOL_LABELS["all_college_comp"], POOL_LABELS["oregon_comp"]])
+        _render_comp_pool(tab_all, player, similarity_df, "all_college_comp", recruit_mode=False)
+        _render_comp_pool(tab_oregon, player, similarity_df, "oregon_comp", recruit_mode=False)
 
 
 def _freshman_actuals_empty(df: pd.DataFrame) -> bool:
@@ -611,9 +639,14 @@ def _render_frosh(player: str, projection_df: pd.DataFrame, similarity_df: pd.Da
     render_bbref(proj_table, projected_rows=pd.Series([True], index=proj_table.index))
 
     st.subheader("Similar Recruits")
-    tab_oregon, tab_all = st.tabs(["Oregon comp recruits", "All college comp recruits"])
-    _render_comp_pool(tab_oregon, player, similarity_df, "oregon_comp", recruit_mode=True)
-    _render_comp_pool(tab_all, player, similarity_df, "all_college_comp", recruit_mode=True)
+    if _has_strong_oregon_comp(similarity_df, player):
+        tab_oregon, tab_all = st.tabs(["Oregon comp recruits", "All college comp recruits"])
+        _render_comp_pool(tab_oregon, player, similarity_df, "oregon_comp", recruit_mode=True)
+        _render_comp_pool(tab_all, player, similarity_df, "all_college_comp", recruit_mode=True)
+    else:
+        tab_all, tab_oregon = st.tabs(["All college comp recruits", "Oregon comp recruits"])
+        _render_comp_pool(tab_all, player, similarity_df, "all_college_comp", recruit_mode=True)
+        _render_comp_pool(tab_oregon, player, similarity_df, "oregon_comp", recruit_mode=True)
 
 
 def _render_comp_pool(tab: st.delta_generator.DeltaGenerator, player: str, similarity_df: pd.DataFrame, pool: str, recruit_mode: bool) -> None:
@@ -634,9 +667,8 @@ def _render_comp_pool(tab: st.delta_generator.DeltaGenerator, player: str, simil
             pair = sub.loc[pd.to_numeric(sub["neighbor_rank"], errors="coerce").eq(rank)].copy()
             pair = pair.sort_values("Type")
             comp_name = pair["name"].dropna().iloc[0] if not pair["name"].dropna().empty else f"Similar Player {int(rank)}"
-            dist_val = pair["comp_distance"].dropna().iloc[0] if not pair["comp_distance"].dropna().empty else None
-            dist_label = _fmt_cell("comp_distance", dist_val) if dist_val is not None else "-"
-            st.markdown(f"#### Similar Player {int(rank)}: {comp_name} (Dist {dist_label})")
+            sim_label = _similarity_headline(pair)
+            st.markdown(f"#### Similar Player {int(rank)}: {comp_name} ({sim_label})")
 
             if not recruit_mode:
                 show_cols = [
@@ -656,7 +688,8 @@ def _render_comp_pool(tab: st.delta_generator.DeltaGenerator, player: str, simil
                     "stl_per36",
                     "blk_per36",
                     "ws_per36",
-                    "comp_distance",
+                    "similarity_percentile",
+                    "similarity_bucket",
                 ]
                 draw = pair[[c for c in show_cols if c in pair.columns]]
                 render_bbref(draw, projected_rows=pair["Type"].astype(str).str.contains("Proj", na=False))
@@ -666,7 +699,7 @@ def _render_comp_pool(tab: st.delta_generator.DeltaGenerator, player: str, simil
             freshman_actual_row = _pick_freshman_stats_row(pair)
 
             st.markdown("**Recruit profile**")
-            recruit_cols = ["name", "position", "recruit_ranking", "recruit_stars", "recruit_rating", "comp_distance"]
+            recruit_cols = ["name", "position", "recruit_ranking", "recruit_stars", "recruit_rating", "similarity_percentile", "similarity_bucket"]
             recruit_df = comp_row[[c for c in recruit_cols if c in comp_row.columns]].copy()
             render_bbref(recruit_df)
 
