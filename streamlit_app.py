@@ -426,10 +426,6 @@ def _has_strong_oregon_comp(similarity_df: pd.DataFrame, player: str) -> bool:
 
 def _similarity_headline(pair: pd.DataFrame) -> str:
     bucket = pair["similarity_bucket"].dropna().iloc[0] if "similarity_bucket" in pair.columns and not pair["similarity_bucket"].dropna().empty else ""
-    pct = pair["similarity_percentile"].dropna().iloc[0] if "similarity_percentile" in pair.columns and not pair["similarity_percentile"].dropna().empty else None
-    if pd.notna(pd.to_numeric(pct, errors="coerce")):
-        pct_label = _fmt_cell("similarity_percentile", pct)
-        return f"{bucket} ({pct_label})" if bucket else pct_label
     return bucket or "-"
 
 
