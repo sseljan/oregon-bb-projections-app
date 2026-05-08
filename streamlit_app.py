@@ -180,7 +180,8 @@ body, .stApp {
 }
 h1, h2, h3 {
     border-left: 4px solid #154733;
-    padding-left: 16px;
+    padding-left: 22px;
+    margin-left: 8px;
 }
 .kpi-card {
     border: 1px solid #154733;
@@ -246,8 +247,12 @@ table.bbref tbody tr:nth-child(even) td:first-child {
 }
 table.bbref tbody td.projected-row {
     font-style: italic;
-    background: #fff7db;
-    color: #121212;
+    font-weight: 600;
+    background: #fff7db !important;
+    color: #121212 !important;
+}
+table.bbref tbody td.projected-row:first-child {
+    color: #202833 !important;
 }
 .subtle {
     color: #5d6874;
