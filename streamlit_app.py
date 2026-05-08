@@ -180,7 +180,7 @@ body, .stApp {
 }
 h1, h2, h3 {
     border-left: 4px solid #154733;
-    padding-left: 10px;
+    padding-left: 16px;
 }
 .kpi-card {
     border: 1px solid #154733;
