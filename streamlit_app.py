@@ -212,17 +212,30 @@ table.bbref thead th:first-child {
     text-align: left;
 }
 table.bbref tbody tr:nth-child(even) {
-    background: #f6f7f5;
+    background: #f6f1d9;
+}
+table.bbref tbody tr:nth-child(odd) {
+    background: #0d1220;
 }
 table.bbref tbody td {
     padding: 5px 8px;
     border-bottom: 1px solid #e6e6e6;
     text-align: right;
-    color: #121212;
 }
 table.bbref tbody td:first-child {
     text-align: left;
     font-weight: 600;
+}
+table.bbref tbody tr:nth-child(odd) td {
+    color: #f5f7fb;
+}
+table.bbref tbody tr:nth-child(odd) td:first-child {
+    color: #dbe2ec;
+}
+table.bbref tbody tr:nth-child(even) td {
+    color: #121212;
+}
+table.bbref tbody tr:nth-child(even) td:first-child {
     color: #28323c;
 }
 table.bbref tbody td.projected-row {
