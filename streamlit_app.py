@@ -169,6 +169,12 @@ def _inject_css() -> None:
     max-width: 1280px;
     padding-top: 1.2rem;
 }
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #1d2335 0%, #171d2d 100%);
+}
+[data-testid="stSidebar"] .block-container {
+    padding-top: 1.4rem;
+}
 body, .stApp {
     font-size: 16px;
 }
@@ -246,6 +252,20 @@ table.bbref tbody td.projected-row {
 .subtle {
     color: #5d6874;
     font-size: 0.92rem;
+}
+.sidebar-player-heading {
+    color: #f5f7fb;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0.2rem 0 0.6rem 0;
+}
+[data-testid="stSidebar"] [data-baseweb="select"] > div {
+    border-radius: 12px;
+    border: 1px solid #3a4358;
+    background: #0d1220;
+}
+[data-testid="stSidebar"] [data-baseweb="select"] span {
+    color: #f5f7fb;
 }
 #MainMenu, footer {
     visibility: hidden;
@@ -330,15 +350,8 @@ def _build_player_selector(projection_df: pd.DataFrame, similarity_df: pd.DataFr
             returning.append(name)
 
     options: list[str] = returning + frosh
-    labels: dict[str, str] = {}
-    for name in returning:
-        labels[name] = f"Returning/Transfer - {name}"
-    for name in frosh:
-        labels[name] = f"Freshman - {name}"
-
-    st.sidebar.caption(f"Returning / Transfer: {len(returning)}")
-    st.sidebar.caption(f"Freshman: {len(frosh)}")
-    return st.sidebar.selectbox("Player", options, format_func=lambda n: labels.get(n, n), index=0)
+    st.sidebar.markdown('<div class="sidebar-player-heading">Player</div>', unsafe_allow_html=True)
+    return st.sidebar.selectbox("Player", options, index=0, label_visibility="collapsed")
 
 
 def _player_context(similarity_df: pd.DataFrame, player: str) -> pd.DataFrame:
@@ -643,10 +656,7 @@ def main() -> None:
         return
 
     with st.sidebar:
-        st.header("Controls")
-        if st.button("Reload CSV data"):
-            st.cache_data.clear()
-            st.rerun()
+        pass
 
     try:
         projection = load_projection()
@@ -665,10 +675,6 @@ def main() -> None:
         _render_frosh(selected, projection, similarity)
     else:
         _render_returning(selected, projection, similarity)
-
-    st.sidebar.markdown("---")
-    st.sidebar.caption(f"Data source: `{OUTPUTS_DIR.name}/`")
-
 
 if __name__ == "__main__":
     main()
