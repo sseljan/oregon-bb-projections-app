@@ -218,6 +218,7 @@ table.bbref tbody td {
     padding: 5px 8px;
     border-bottom: 1px solid #e6e6e6;
     text-align: right;
+    color: #121212;
 }
 table.bbref tbody td:first-child {
     text-align: left;
@@ -226,6 +227,8 @@ table.bbref tbody td:first-child {
 }
 table.bbref tbody td.projected-row {
     font-style: italic;
+    background: #fff7db;
+    color: #121212;
 }
 .subtle {
     color: #5d6874;
@@ -368,7 +371,9 @@ def _format_player_rows(projection_df: pd.DataFrame, player: str) -> pd.DataFram
         projection_df["name"].eq(player) & projection_df["season_type"].isin(["prior_actual", "projected"])
     ].copy()
     rows["season"] = pd.to_numeric(rows["season"], errors="coerce")
-    rows["season_label"] = rows["season"].fillna(0).astype(int).astype(str) + "-" + (rows["season"].fillna(0).astype(int) + 1).astype(str).str[-2:]
+    season_end = rows["season"].fillna(0).astype(int)
+    season_start = season_end - 1
+    rows["season_label"] = season_start.astype(str) + "-" + season_end.astype(str).str[-2:]
     rows["is_projected"] = rows["season_type"].eq("projected")
     return rows.sort_values(["season", "is_projected"])
 
@@ -470,7 +475,7 @@ def _render_returning(player: str, projection_df: pd.DataFrame, similarity_df: p
     per36 = per36[[c for c in per36_cols if c in per36.columns]]
     render_bbref(per36, projected_rows=rows["season_type"].eq("projected"))
 
-    st.subheader("Similarity Comps")
+    st.subheader("Player Comparisons")
     tab_oregon, tab_all = st.tabs([POOL_LABELS["oregon_comp"], POOL_LABELS["all_college_comp"]])
     _render_comp_pool(tab_oregon, player, similarity_df, "oregon_comp", recruit_mode=False)
     _render_comp_pool(tab_all, player, similarity_df, "all_college_comp", recruit_mode=False)
@@ -555,10 +560,10 @@ def _render_comp_pool(tab: st.delta_generator.DeltaGenerator, player: str, simil
         for rank in ranks:
             pair = sub.loc[pd.to_numeric(sub["neighbor_rank"], errors="coerce").eq(rank)].copy()
             pair = pair.sort_values("Type")
-            comp_name = pair["name"].dropna().iloc[0] if not pair["name"].dropna().empty else f"Neighbor {int(rank)}"
+            comp_name = pair["name"].dropna().iloc[0] if not pair["name"].dropna().empty else f"Similar Player {int(rank)}"
             dist_val = pair["comp_distance"].dropna().iloc[0] if not pair["comp_distance"].dropna().empty else None
             dist_label = _fmt_cell("comp_distance", dist_val) if dist_val is not None else "-"
-            st.markdown(f"#### Neighbor {int(rank)}: {comp_name} (Dist {dist_label})")
+            st.markdown(f"#### Similar Player {int(rank)}: {comp_name} (Dist {dist_label})")
 
             if not recruit_mode:
                 show_cols = [
