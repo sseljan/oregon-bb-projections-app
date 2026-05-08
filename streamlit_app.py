@@ -377,6 +377,16 @@ def _build_player_selector(projection_df: pd.DataFrame, similarity_df: pd.DataFr
     return st.sidebar.selectbox("Player", options, index=0, label_visibility="collapsed")
 
 
+def _build_page_selector() -> str:
+    st.sidebar.markdown('<div class="sidebar-player-heading">Page</div>', unsafe_allow_html=True)
+    return st.sidebar.selectbox(
+        "Page",
+        ["Overview", "Player Comparisons", "About"],
+        index=0,
+        label_visibility="collapsed",
+    )
+
+
 def _player_context(similarity_df: pd.DataFrame, player: str) -> pd.DataFrame:
     return similarity_df.loc[
         similarity_df["current_player"].eq(player) & similarity_df["comparison_pool"].eq("current_player")
@@ -439,6 +449,69 @@ def _format_player_rows(projection_df: pd.DataFrame, player: str) -> pd.DataFram
     rows["season_label"] = season_start.astype(str) + "-" + season_end.astype(str).str[-2:]
     rows["is_projected"] = rows["season_type"].eq("projected")
     return rows.sort_values(["season", "is_projected"])
+
+
+def _player_position_map(similarity_df: pd.DataFrame) -> pd.Series:
+    current = similarity_df.loc[
+        similarity_df["comparison_pool"].eq("current_player")
+        & similarity_df["Type"].eq("Actual")
+        & similarity_df["current_player"].notna()
+    ].copy()
+    if current.empty or "position" not in current.columns:
+        return pd.Series(dtype=object)
+    current["position"] = current["position"].fillna("").astype(str).str.strip()
+    current = current[current["position"].ne("")]
+    return current.drop_duplicates("current_player").set_index("current_player")["position"]
+
+
+def _render_overview(projection_df: pd.DataFrame, similarity_df: pd.DataFrame) -> None:
+    st.title("2026 Roster Projection Overview")
+    st.markdown('<p class="subtle">Projected Oregon roster, sorted by projected usage.</p>', unsafe_allow_html=True)
+
+    projected = projection_df.loc[projection_df["season_type"].eq("projected")].copy()
+    if projected.empty:
+        st.warning("No projected roster rows found.")
+        return
+
+    positions = _player_position_map(similarity_df)
+    projected["position"] = projected["name"].map(positions).fillna("")
+    projected["season_label"] = "2026-27"
+    projected["usage_sort"] = pd.to_numeric(projected["usage_pct"], errors="coerce")
+    projected = projected.sort_values("usage_sort", ascending=False)
+
+    overview_cols = [
+        "name",
+        "position",
+        "season_label",
+        "games",
+        "mpg",
+        "usage_pct",
+        "efg_pct",
+        "3p_pct",
+        "ft_pct",
+        "pts_pg",
+        "reb_pg",
+        "ast_pg",
+        "stl_pg",
+        "blk_pg",
+        "3pa_pg",
+        "tov_pg",
+        "ws",
+        "bpm",
+    ]
+    draw = projected[[c for c in overview_cols if c in projected.columns]].copy()
+    render_bbref(draw, projected_rows=pd.Series([True] * len(draw), index=draw.index))
+
+
+def _render_about() -> None:
+    st.title("About")
+    st.markdown(
+        """
+These projections are based on historical college basketball data, recruiting rankings, and Oregon specific minutes and points distributions. They are a best guess and for entertainment purposes only. It's likely that some players will over perform and others under perform these projections; they provide a rough baseline for what we might expect.
+
+These projections were developed by Sam Seljan. He is a life long Duck fan and VP of Data Science with over 14 years of experience building machine learning models. [LinkedIn](https://www.linkedin.com/in/samuel-seljan-5760526/). Sports analytics are one of his hobbies and he has built models to predict college basketball, NBA, and college football, with top finishes in prediction contests and sometimes more accurate than those created by sportsbooks.
+"""
+    )
 
 
 def _render_returning(player: str, projection_df: pd.DataFrame, similarity_df: pd.DataFrame) -> None:
@@ -743,6 +816,14 @@ def main() -> None:
 
     if projection.empty:
         st.warning("No players found in projection data.")
+        return
+
+    page = _build_page_selector()
+    if page == "Overview":
+        _render_overview(projection, similarity)
+        return
+    if page == "About":
+        _render_about()
         return
 
     selected = _build_player_selector(projection, similarity)
